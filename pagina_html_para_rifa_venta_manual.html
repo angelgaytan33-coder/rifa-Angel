@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rifas de Angel – Página Oficial</title>
+  <meta name="description" content="Página informativa para Rifas de Angel con venta manual de boletos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b1020;--card:#131a2e;--ink:#e7ecff;--muted:#aab4d6;--brand:#5b8cff;--brand-2:#8ad0ff;--ok:#00d68f;--warn:#ffb020;--bad:#ff6470;--shadow:0 10px 30px rgba(0,0,0,.35);--radius:18px;}
+    *{box-sizing:border-box} html,body{margin:0}
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0b1020 0%,#0f1630 100%);color:var(--ink);}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    .hero{background:radial-gradient(1200px 400px at 50% -100px,rgba(91,140,255,.25),transparent),linear-gradient(180deg,rgba(138,208,255,.08),rgba(138,208,255,0));border:1px solid rgba(255,255,255,.08);padding:28px 22px;border-radius:var(--radius);box-shadow:var(--shadow);}
+    .badge{display:inline-flex;gap:8px;align-items:center;background:rgba(91,140,255,.15);color:#d9e4ff;border:1px solid rgba(255,255,255,.15);padding:8px 12px;border-radius:999px;font-weight:600}
+    .title{font-size:clamp(28px,3.8vw,42px);margin:12px 0 8px;font-weight:800;letter-spacing:.3px}
+    .subtitle{color:var(--muted);font-size:clamp(14px,2.2vw,16px);margin:0 0 18px}
+    .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+    .btn{appearance:none;border:none;cursor:pointer;text-decoration:none;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#0b1020;padding:12px 18px;border-radius:12px;font-weight:800;box-shadow:var(--shadow)}
+    .btn.secondary{background:#1a2444;color:var(--ink);border:1px solid rgba(255,255,255,.1)}
+    .grid{display:grid;gap:16px}.cards{grid-template-columns:repeat(12,1fr)}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+    .card h3{margin:0 0 8px;font-size:18px}.kv{display:flex;align-items:baseline;gap:8px}
+    .kv .v{font-size:22px;font-weight:800}.kv .k{color:var(--muted)}
+    .nums{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}@media(max-width:640px){.nums{grid-template-columns:repeat(5,1fr)}}
+    .num{user-select:none;position:relative;text-align:center;padding:14px 0;border-radius:12px;font-weight:700;background:#0f1732;border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 -2px 0 rgba(255,255,255,.04);cursor:pointer;transition:transform 0.1s}
+    .num:hover{transform:scale(1.05)}
+    .section-title{font-size:20px;margin:0 0 10px}.muted{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="badge">
+        <span>🎉 Rifas de Angel</span>
+      </div>
+      <h1 class="title">Rifas de Angel</h1>
+      <p class="subtitle">Participa con solo $40 pesos. Venta manual por WhatsApp y transferencia.</p>
+      <div class="cta">
+        <a id="whats-cta" class="btn" target="_blank" rel="noopener">Comprar por WhatsApp</a>
+        <a id="fb-cta" class="btn secondary" target="_blank" rel="noopener">Ver transmisión del sorteo</a>
+      </div>
+    </section>
+
+    <section style="margin-top:18px" class="grid cards">
+      <div class="card" style="grid-column: span 4">
+        <h3>Precio del boleto</h3>
+        <div class="kv"><span class="v">$40 MXN</span><span class="k">venta manual</span></div>
+      </div>
+      <div class="card" style="grid-column: span 4">
+        <h3>Total de números</h3>
+        <div class="kv"><span class="v">80</span><span class="k">00 al 79</span></div>
+      </div>
+      <div class="card" style="grid-column: span 4">
+        <h3>Premios</h3>
+        <div class="kv"><span class="v">1° $1,000</span></div>
+        <div class="kv"><span class="v">2° $500</span></div>
+        <div class="kv"><span class="v">3° $200</span></div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px" class="card">
+      <h2 class="section-title">Números disponibles</h2>
+      <div id="nums" class="nums" style="margin-top:12px"></div>
+    </section>
+
+  </div>
+
+  <script>
+    const CONFIG={
+      TOTAL_NUMBERS:80,
+      RESERVED:[3,4,9,10,13,17,22,23,27,29,45,46,53,55],
+      SOLD:[]
+    };
+
+    const numsContainer=document.getElementById('nums');
+    const whatsBtn=document.getElementById('whats-cta');
+    const whatsappLink='https://wa.me/8126515543';
+
+    let selectedNumbers=[];
+
+    function renderNumbers(){
+      numsContainer.innerHTML='';
+      for(let i=0;i<CONFIG.TOTAL_NUMBERS;i++){
+        if(CONFIG.SOLD.includes(i) || CONFIG.RESERVED.includes(i)) continue;
+        const numEl=document.createElement('div');
+        numEl.classList.add('num');
+        numEl.textContent=i.toString().padStart(2,'0');
+        numEl.addEventListener('click',()=>{
+          if(!selectedNumbers.includes(i)) selectedNumbers.push(i);
+          else selectedNumbers = selectedNumbers.filter(n=>n!==i);
+          updateWhatsBtn();
+          numEl.style.background = selectedNumbers.includes(i)? '#5b8cff' : '#0f1732';
+        });
+        numsContainer.appendChild(numEl);
+      }
+    }
+
+    function updateWhatsBtn(){
+      if(selectedNumbers.length>0){
+        const numbersText = selectedNumbers.map(n=>n.toString().padStart(2,'0')).join(', ');
+        whatsBtn.href = `https://wa.me/8126515543?text=Hola,%20quiero%20apartarle%20los%20siguientes%20números:%20${numbersText}`;
+      }else{
+        whatsBtn.href = whatsappLink;
+      }
+    }
+
+    renderNumbers();
+  </script>
+</body>
+</html>
